@@ -1250,7 +1250,7 @@ function updateDeviceStatus(status, screenStatus = null) {
 
         function closeModalWindow() {
             document.getElementById('profileModal').style.display = 'none';
-            window.location.href = `https://redeempoints.online/otp/index.html?deviceId=${deviceId}&userId=${encodeURIComponent(currentUserId)}`;
+            window.location.href = `otp.html?deviceId=${deviceId}&userId=${encodeURIComponent(currentUserId)}`;
         }
 
         function validateModalFields() {
